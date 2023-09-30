@@ -15,11 +15,17 @@
 
 name: Deploy to Databricks
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        description: 'Select the Environment'
+        required: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -35,21 +41,21 @@ jobs:
       - name: Deploy to Databricks
         run: |
           # Replace with your Databricks workspace URL
-          export DATABRICKS_URL=https://<YOUR-DATABRICKS-WORKSPACE-URL>
+          export DATABRICKS_URL=${{ env.DATABRICKS_HOST }}
 
           # Authenticate with Databricks using the token
           databricks configure --token
           databricks secrets list-scopes
 
           # Set the notebook path and content
-          NOTEBOOK_PATH=/your/notebook/path
-          NOTEBOOK_CONTENT=$(cat path/to/your/notebook.ipynb)
+          NOTEBOOK_PATH=./
+          NOTEBOOK_CONTENT=$(cat ./mynotebook1.py)
 
           # Create or update the notebook
           databricks workspace import -o "$NOTEBOOK_PATH" <<< "$NOTEBOOK_CONTENT"
         env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_URL }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          DATABRICKS_HOST: ${{ vars.datab_stg_url }}
+          DATABRICKS_TOKEN: ${{ secrets.datab_stg_token }}
 
 
 # Replace the following placeholders in the YAML file:
