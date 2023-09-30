@@ -41,7 +41,7 @@ jobs:
       - name: Deploy to Databricks
         run: |
           # Replace with your Databricks workspace URL
-          export DATABRICKS_URL=https://adb-7043099992221695.15.azuredatabricks.net/
+          export DATABRICKS_URL=https://(${{ env.DATABRICKS_HOST }}
 
           # Authenticate with Databricks using the token
           databricks configure --token
@@ -54,8 +54,8 @@ jobs:
           # Create or update the notebook
           databricks workspace import -o "$NOTEBOOK_PATH" <<< "$NOTEBOOK_CONTENT"
         env:
-          DATABRICKS_HOST: ${{ vars.datab_stg_url }}
-          DATABRICKS_TOKEN: ${{ secrets.datab_stg_token }}
+          DATABRICKS_HOST: ${{ vars.DATAB_STG_URL }}
+          DATABRICKS_TOKEN: ${{ secrets.DATAB_STG_TOKEN }}
 
 
 # Replace the following placeholders in the YAML file:
