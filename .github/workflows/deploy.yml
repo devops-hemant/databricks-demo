@@ -41,7 +41,7 @@ jobs:
       - name: Deploy to Databricks
         run: |
           # Replace with your Databricks workspace URL
-          export DATABRICKS_URL=https://adb-8086157803788908.8.azuredatabricks.net
+          export DATABRICKS_URL="https://adb-7043099992221695.15.azuredatabricks.net/"
 
           # Authenticate with Databricks using the token
           databricks configure --token
