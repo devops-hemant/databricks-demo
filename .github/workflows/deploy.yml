@@ -41,7 +41,7 @@ jobs:
       - name: Deploy to Databricks
         run: |
           # Replace with your Databricks workspace URL
-          export DATABRICKS_URL=https://(${{ env.DATABRICKS_HOST }}
+          export DATABRICKS_URL=https://${{ env.DATABRICKS_HOST }}
 
           # Authenticate with Databricks using the token
           databricks configure --token
