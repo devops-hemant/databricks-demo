@@ -30,40 +30,56 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Run a databricks notebook
+        uses: databricks/run-notebook@v0
         with:
-          python-version: '3.x' # Change to your Python version if needed
-
-      - name: Install Databricks CLI
-        run: pip install databricks-cli
-
-      - name: Deploy to Databricks
-        run: |
-          # Replace with your Databricks workspace URL
-          export DATABRICKS_URL="https://adb-7043099992221695.15.azuredatabricks.net/"
-
-          # Authenticate with Databricks using the token
-          databricks configure --token
-          databricks secrets list-scopes
-
-          # Set the notebook path and content
-          NOTEBOOK_PATH=./
-          NOTEBOOK_CONTENT=$(cat ./mynotebook1.py)
-
-          # Create or update the notebook
-          databricks workspace import -o "$NOTEBOOK_PATH" <<< "$NOTEBOOK_CONTENT"
-        env:
-          DATABRICKS_HOST: ${{ vars.DATAB_STG_URL }}
-          DATABRICKS_TOKEN: ${{ secrets.DATAB_STG_TOKEN }}
+          local-notebook-path: ./mynotebook1.py
+          databricks-host: https://adb-7043099992221695.15.azuredatabricks.net/
+          databricks-token: ${{ secrets.DATAB_STG_TOKEN }}
+          git-commit: ${{ github.event.pull_request.head.sha }}
+          new-cluster-json: >
+            {
+              "num_workers": 1,
+              "spark_version": "10.4.x-scala2.12",
+              "node_type_id": "Standard_D3_v2"
+            }
 
 
-# Replace the following placeholders in the YAML file:
 
-# <YOUR-DATABRICKS-WORKSPACE-URL>: Replace this with your Databricks workspace URL.
-# /your/notebook/path: Specify the path where you want to deploy the notebook in Databricks.
-# path/to/your/notebook.ipynb: Update this to the path of the notebook you want to deploy.
+#       - name: Set up Python
+#         uses: actions/setup-python@v2
+#         with:
+#           python-version: '3.x' # Change to your Python version if needed
 
-# This workflow will trigger whenever you push changes to the specified branch. It checks out the code, installs the Databricks CLI, and uses it to deploy the notebook to Databricks.
+#       - name: Install Databricks CLI
+#         run: pip install databricks-cli
 
-# Remember to customize the workflow to suit your specific needs, such as adding additional steps, handling different branches, or deploying different types of Databricks resources.
+#       - name: Deploy to Databricks
+#         run: |
+#           # Replace with your Databricks workspace URL
+#           export DATABRICKS_URL="https://adb-7043099992221695.15.azuredatabricks.net/"
+
+#           # Authenticate with Databricks using the token
+#           databricks configure --token
+#           databricks secrets list-scopes
+
+#           # Set the notebook path and content
+#           NOTEBOOK_PATH=./
+#           NOTEBOOK_CONTENT=$(cat ./mynotebook1.py)
+
+#           # Create or update the notebook
+#           databricks workspace import -o "$NOTEBOOK_PATH" <<< "$NOTEBOOK_CONTENT"
+#         env:
+#           DATABRICKS_HOST: ${{ vars.DATAB_STG_URL }}
+#           DATABRICKS_TOKEN: ${{ secrets.DATAB_STG_TOKEN }}
+
+
+# # Replace the following placeholders in the YAML file:
+
+# # <YOUR-DATABRICKS-WORKSPACE-URL>: Replace this with your Databricks workspace URL.
+# # /your/notebook/path: Specify the path where you want to deploy the notebook in Databricks.
+# # path/to/your/notebook.ipynb: Update this to the path of the notebook you want to deploy.
+
+# # This workflow will trigger whenever you push changes to the specified branch. It checks out the code, installs the Databricks CLI, and uses it to deploy the notebook to Databricks.
+
+# # Remember to customize the workflow to suit your specific needs, such as adding additional steps, handling different branches, or deploying different types of Databricks resources.
