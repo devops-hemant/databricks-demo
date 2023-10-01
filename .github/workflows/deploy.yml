@@ -50,7 +50,7 @@ jobs:
           #export DATABRICKS_URL=$DATABRICKS_HOST
           echo $DATABRICKS_HOST
           # Authenticate with Databricks using the token
-          databricks configure --token
+          databricks configure --token --host=$DATABRICKS_HOST
           databricks secrets list-scopes
 
           # Set the notebook path and content
