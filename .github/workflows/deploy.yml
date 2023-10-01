@@ -27,9 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
 
-    env:
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
 
     steps:
       - name: Checkout code
@@ -44,12 +42,15 @@ jobs:
         run: pip install databricks-cli
 
       - name: Deploy to Databricks
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
           # Replace with your Databricks workspace URL
           #export DATABRICKS_URL=$DATABRICKS_HOST
-
+          echo $DATABRICKS_HOST
           # Authenticate with Databricks using the token
-          databricks configure --token --host $DATABRICKS_HOST
+          databricks configure --token
           databricks secrets list-scopes
 
           # Set the notebook path and content
