@@ -49,7 +49,7 @@ jobs:
           # Replace with your Databricks workspace URL
           #export DATABRICKS_URL=$DATABRICKS_HOST
           touch tfile
-          echo DATABRICKS_TOKEN > tfile
+          echo $DATABRICKS_TOKEN > tfile
           # Authenticate with Databricks using the token
           databricks configure --host='${{ secrets.DATABRICKS_HOST }}' --token-file tfile
           databricks secrets list-scopes
