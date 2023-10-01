@@ -46,10 +46,10 @@ jobs:
         #   DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
         #   DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
-
+          echo ${{ vars.DATABRICKS_HOST }}
           touch tfile
           echo ${{ secrets.DATABRICKS_TOKEN }} > tfile
-          databricks configure --host='${{ secrets.DATABRICKS_HOST }}' --token-file tfile
+          databricks configure --host='${{ vars.DATABRICKS_HOST }}' --token-file tfile
 
           NOTEBOOK_PATH=notebooks/
           REMOTE_PATH=/Shared/notebooksDEMO2
