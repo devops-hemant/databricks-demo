@@ -46,10 +46,10 @@ jobs:
       - name: Deploy to Databricks
         run: |
           # Replace with your Databricks workspace URL
-          export DATABRICKS_URL=$DATABRICKS_HOST
+          #export DATABRICKS_URL=$DATABRICKS_HOST
 
           # Authenticate with Databricks using the token
-          databricks configure --token
+          databricks configure --token --host $DATABRICKS_HOST
           databricks secrets list-scopes
 
           # Set the notebook path and content
