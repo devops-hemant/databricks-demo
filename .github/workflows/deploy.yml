@@ -1,17 +1,3 @@
-# Step 1: Set up Databricks Token
-# You'll need a Databricks Personal Access Token to authenticate your GitHub Actions workflow with Databricks. Follow these steps to create a token:
-# Log in to your Databricks workspace.
-# Click on your user icon in the upper-right corner and select "User Settings."
-# In the left sidebar, select "Access Tokens."
-# Click the "Generate New Token" button and provide a name for your token. Make sure to note down the token value as it will not be displayed again.
-# Step 2: Add Databricks Token to GitHub Secrets
-# To keep your Databricks token secure, add it as a secret in your GitHub repository:
-# Go to your GitHub repository.
-# Click on "Settings" > "Secrets" > "New repository secret."
-# Name the secret (e.g., DATABRICKS_TOKEN) and paste the Databricks token value you generated in Step 1.
-# Step 3: Create a GitHub Actions Workflow
-# Now, create a workflow YAML file (e.g., .github/workflows/deploy-to-databricks.yml) in your repository. This example workflow deploys a Databricks notebook whenever you push changes to a specific branch (e.g., main).
-
 
 name: Deploy to Databricks
 on:
@@ -27,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
 
-
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -42,9 +26,6 @@ jobs:
         run: pip install databricks-cli
 
       - name: Deploy to Databricks
-        # env:
-        #   DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-        #   DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
           echo ${{ vars.DATABRICKS_HOST }}
           touch tfile
@@ -52,33 +33,8 @@ jobs:
           databricks configure --host='${{ vars.DATABRICKS_HOST }}' --token-file tfile
 
           NOTEBOOK_PATH=notebooks/
-          REMOTE_PATH=/Shared/notebooksDEMO2
+          REMOTE_PATH=/repos/hemsharm16@publicisgroupe.net/databricks-demo/notebooks/
 
           # Create or update the notebook
           databricks workspace import_dir -o "$NOTEBOOK_PATH" "$REMOTE_PATH"
 
-
-# # Replace the following placeholders in the YAML file:
-
-# # <YOUR-DATABRICKS-WORKSPACE-URL>: Replace this with your Databricks workspace URL.
-# # /your/notebook/path: Specify the path where you want to deploy the notebook in Databricks.
-# # path/to/your/notebook.ipynb: Update this to the path of the notebook you want to deploy.
-
-# # This workflow will trigger whenever you push changes to the specified branch. It checks out the code, installs the Databricks CLI, and uses it to deploy the notebook to Databricks.
-
-# # Remember to customize the workflow to suit your specific needs, such as adding additional steps, handling different branches, or deploying different types of Databricks resources.
-
-
-      # - name: Run a databricks notebook
-      #   uses: databricks/run-notebook@v0
-      #   with:
-      #     local-notebook-path: ./mynotebook1.py
-      #     databricks-host: https://adb-7043099992221695.15.azuredatabricks.net/
-      #     databricks-token: ${{ secrets.DATAB_STG_TOKEN }}
-      #     git-commit: ${{ github.event.pull_request.head.sha }}
-      #     new-cluster-json: >
-      #       {
-      #         "num_workers": 1,
-      #         "spark_version": "10.4.x-scala2.12",
-      #         "node_type_id": "Standard_D3_v2"
-      #       }
