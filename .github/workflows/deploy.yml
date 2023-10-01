@@ -42,13 +42,13 @@ jobs:
         run: pip install databricks-cli
 
       - name: Deploy to Databricks
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        # env:
+        #   DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        #   DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
 
           touch tfile
-          echo $DATABRICKS_TOKEN > tfile
+          echo ${{ secrets.DATABRICKS_TOKEN }} > tfile
           databricks configure --host='https://adb-7043099992221695.15.azuredatabricks.net/' --token-file tfile
 
           NOTEBOOK_PATH=notebooks/
