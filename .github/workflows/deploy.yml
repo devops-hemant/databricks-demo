@@ -46,15 +46,11 @@ jobs:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
-          # Replace with your Databricks workspace URL
-          #export DATABRICKS_URL=$DATABRICKS_HOST
+
           touch tfile
           echo $DATABRICKS_TOKEN > tfile
-          # Authenticate with Databricks using the token
-          databricks configure --host='${{ secrets.DATABRICKS_HOST }}' --token-file tfile
-          databricks secrets list-scopes
+          databricks configure --host='https://adb-7043099992221695.15.azuredatabricks.net/' --token-file tfile
 
-          # Set the notebook path and content
           NOTEBOOK_PATH=notebooks/
           REMOTE_PATH=/Shared/notebooksDEMO
 
