@@ -48,9 +48,10 @@ jobs:
         run: |
           # Replace with your Databricks workspace URL
           #export DATABRICKS_URL=$DATABRICKS_HOST
-          echo $DATABRICKS_HOST
+          touch tfile
+          echo DATABRICKS_TOKEN > tfile
           # Authenticate with Databricks using the token
-          databricks configure --token --host=$DATABRICKS_HOST
+          databricks configure --host='${{ secrets.DATABRICKS_HOST }}' --token -file tfile
           databricks secrets list-scopes
 
           # Set the notebook path and content
