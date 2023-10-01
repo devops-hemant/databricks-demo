@@ -51,7 +51,7 @@ jobs:
           touch tfile
           echo DATABRICKS_TOKEN > tfile
           # Authenticate with Databricks using the token
-          databricks configure --host='${{ secrets.DATABRICKS_HOST }}' --token -file tfile
+          databricks configure --host='${{ secrets.DATABRICKS_HOST }}' --token-file tfile
           databricks secrets list-scopes
 
           # Set the notebook path and content
