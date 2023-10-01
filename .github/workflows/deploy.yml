@@ -49,10 +49,10 @@ jobs:
 
           touch tfile
           echo ${{ secrets.DATABRICKS_TOKEN }} > tfile
-          databricks configure --host='https://adb-7043099992221695.15.azuredatabricks.net/' --token-file tfile
+          databricks configure --host='${{ secrets.DATABRICKS_HOST }}' --token-file tfile
 
           NOTEBOOK_PATH=notebooks/
-          REMOTE_PATH=/Shared/notebooksDEMO
+          REMOTE_PATH=/Shared/notebooksDEMO2
 
           # Create or update the notebook
           databricks workspace import_dir -o "$NOTEBOOK_PATH" "$REMOTE_PATH"
