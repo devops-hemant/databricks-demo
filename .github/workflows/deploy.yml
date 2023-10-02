@@ -33,7 +33,7 @@ jobs:
           databricks configure --host='${{ vars.DATABRICKS_HOST }}' --token-file tfile
 
           NOTEBOOK_PATH=notebooks/
-          REMOTE_PATH=/repos/hemsharm16@publicisgroupe.net/databricks-demo/notebooks/
+          REMOTE_PATH=/hemant/notebooks/
 
           # Create or update the notebook
           databricks workspace import_dir -o "$NOTEBOOK_PATH" "$REMOTE_PATH"
