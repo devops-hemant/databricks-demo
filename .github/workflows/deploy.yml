@@ -27,32 +27,32 @@ jobs:
             -d 'scope=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d%2F.default' \
             -d 'client_secret=${{ secrets.AZURE_SP_CLIENT_SECRET }}' |  jq -r  '.access_token')" >> $GITHUB_ENV
 
-      - name: databricks-import-directory
-        uses: microsoft/databricks-import-directory@v1.0.0
-        with:
-              databricks-host: https://adb-1473173809925020.0.azuredatabricks.net
-              databricks-token: $DATABRICKS_TOKEN
-              local-path: ./notebooks
-              remote-path: /test_path
-
-      # - name: Set up Python
-      #   uses: actions/setup-python@v4.7.1
+      # - name: databricks-import-directory
+      #   uses: microsoft/databricks-import-directory@v1.0.0
       #   with:
-      #     python-version: '3.x' # Change to your Python version if needed
+      #         databricks-host: https://adb-1473173809925020.0.azuredatabricks.net
+      #         databricks-token: $DATABRICKS_TOKEN
+      #         local-path: ./notebooks
+      #         remote-path: /test_path
 
-      # - name: Install Databricks CLI
-      #   run: pip install databricks-cli
+      - name: Set up Python
+        uses: actions/setup-python@v4.7.1
+        with:
+          python-version: '3.x' # Change to your Python version if needed
 
-      # - name: Deploy to Databricks
-      #   run: |
-      #     echo ${{ vars.DATABRICKS_HOST }}
-      #     touch tfile
-      #     echo ${{ secrets.DATABRICKS_TOKEN }} > tfile
-      #     databricks configure --host='${{ vars.DATABRICKS_HOST }}' --token-file tfile
+      - name: Install Databricks CLI
+        run: pip install databricks-cli
 
-      #     NOTEBOOK_PATH=notebooks/
-      #     REMOTE_PATH=/hemant/notebooks/
+      - name: Deploy to Databricks
+        run: |
+          echo ${{ vars.DATABRICKS_HOST }}
+          touch tfile
+          echo $DATABRICKS_TOKEN > tfile
+          databricks configure --host=https://adb-1473173809925020.0.azuredatabricks.net --token-file tfile
 
-      #     # Create or update the notebook
-      #     databricks workspace import_dir -o "$NOTEBOOK_PATH" "$REMOTE_PATH"
+          NOTEBOOK_PATH=notebooks/
+          REMOTE_PATH=/hemant/notebooks/
+
+          # Create or update the notebook
+          databricks workspace import_dir -o "$NOTEBOOK_PATH" "$REMOTE_PATH"
 
