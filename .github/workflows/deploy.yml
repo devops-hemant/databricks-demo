@@ -24,7 +24,7 @@ jobs:
             https://login.microsoftonline.com/${{ secrets.AZURE_SP_TENANT_ID }}/oauth2/v2.0/token \
             -d 'client_id=${{ secrets.AZURE_SP_APPLICATION_ID }}' \
             -d 'grant_type=client_credentials' \
-            -d 'scope=57c22230-c355-4293-8493-61057d85f0cc.default' \
+            -d 'scope=/subscriptions/57c22230-c355-4293-8493-61057d85f0cc' \
             -d 'client_secret=${{ secrets.AZURE_SP_CLIENT_SECRET }}' |  jq -r  '.access_token')" >> $GITHUB_ENV
 
       # - name: databricks-import-directory
