@@ -32,8 +32,8 @@ jobs:
         with:
               databricks-host: https://adb-1473173809925020.0.azuredatabricks.net
               databricks-token: $DATABRICKS_TOKEN
-              local-path: ./my-local-path
-              remote-path: /my-remote-path
+              local-path: ./notebooks
+              remote-path: /test_path
 
       # - name: Set up Python
       #   uses: actions/setup-python@v4.7.1
