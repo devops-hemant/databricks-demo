@@ -45,7 +45,7 @@ jobs:
 
       - name: Deploy to Databricks
         run: |
-          echo ${{ vars.DATABRICKS_HOST }}
+          echo $DATABRICKS_TOKEN
           touch tfile
           echo $DATABRICKS_TOKEN > tfile
           databricks configure --host=https://adb-1473173809925020.0.azuredatabricks.net --token-file tfile
