@@ -57,5 +57,6 @@ jobs:
           rm -rf tfile
 
       - name: notify the username to channel
+        if: always()
         run: |
             curl -X POST -H 'Content-Type: application/json' --data '{"text": "${{ job.status }} is the status of the pipeline"}' ${{ secrets.TEAMS_WEBHOOK }}
