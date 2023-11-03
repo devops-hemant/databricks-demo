@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: notify the username to channel
         run: |
-        curl -X POST -H 'Content-Type: application/json' --data '{"text": "${{ github.actor }} is running the pipeline"}' ${{ secrets.TEAMS_WEBHOOK }}
+          curl -X POST -H 'Content-Type: application/json' --data '{"text": "${{ github.actor }} is running the pipeline"}' ${{ secrets.TEAMS_WEBHOOK }}
 
       - name: Checkout code
         uses: actions/checkout@v4
