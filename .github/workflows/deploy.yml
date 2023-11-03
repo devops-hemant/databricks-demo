@@ -14,13 +14,17 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
+      - name: notify the username to channel
+        run: |
+        curl -X POST -H 'Content-Type: application/json' --data '{"text": "${{ github.actor }} is running the pipeline"}' ${{ secrets.TEAMS_WEBHOOK }}
+
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4.7.1
         with:
-          python-version: '3.x' # Change to your Python version if needed
+          python-version: '3.11.5' # Change to your Python version if needed
 
       - name: Install Databricks CLI
         run: pip install databricks-cli
@@ -38,3 +42,4 @@ jobs:
           # Create or update the notebook
           databricks workspace import_dir -o "$NOTEBOOK_PATH" "$REMOTE_PATH"
 
+          rm -rf tfile
