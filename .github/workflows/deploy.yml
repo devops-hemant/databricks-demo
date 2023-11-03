@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: notify the username to channel
         run: |
-          curl -X POST -H "Content-Type: application/json" --data '{"text": "${{ github.actor }} is running the pipeline"}' ${{ secrets.TEAMS_WEBHOOK }}
+          curl -X POST -H 'Content-Type: application/json' --data '{"text": "${{ github.actor }} is running the pipeline"}' ${{ secrets.TEAMS_WEBHOOK }}
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -56,6 +56,6 @@ jobs:
 
           rm -rf tfile
 
-      - name: notify the job status to channel
+      - name: notify the username to channel
         run: |
-            curl -X POST -H "Content-Type: application/json" --data '{"text": "${{jobs.deploy.steps.deploy.result}} is running the pipeline"}' ${{ secrets.TEAMS_WEBHOOK }}
+            curl -X POST -H 'Content-Type: application/json' --data '{"text": "${{ job.status }} is the status of the pipeline"}' ${{ secrets.TEAMS_WEBHOOK }}
