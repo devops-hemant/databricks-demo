@@ -12,7 +12,7 @@ jobs:
       steps:
        - name: check the commit text
          run: |
-            echo ${{ github.event.head_commit.message }} | grep "deploy on dev"
+            echo ${{ github.event.head_commit.message }} | grep -o "deploy on dev"
 
 
     DEV_deploy:
@@ -26,7 +26,7 @@ jobs:
         steps:
          - name: check the commit text
            run: |
-              echo ${{ github.event.head_commit.message }} | grep "deploy on stg"
+              echo ${{ github.event.head_commit.message }} | grep -o "deploy on stg"
 
     STG_deploy:
         name: run STG action
@@ -39,9 +39,9 @@ jobs:
       steps:
        - name: check the commit text
          run: |
-            echo ${{ github.event.head_commit.message }} | grep "deploy on prod"
+            echo ${{ github.event.head_commit.message }} | grep -o "deploy on prod"
 
-            
+
     PROD_deploy:
         name: run PROD action
         needs: PROD_check
