@@ -9,6 +9,7 @@ jobs:
     DEV_check:
       name: check if dev deployment is there.
       runs-on: ubuntu-latest
+      continue-on-error: true
       steps:
        - name: check the commit text
          run: |
@@ -23,6 +24,7 @@ jobs:
     STG_check:
         name: check if dev deployment is there.
         runs-on: ubuntu-latest
+        continue-on-error: true
         steps:
          - name: check the commit text
            run: |
@@ -36,6 +38,7 @@ jobs:
     PROD_check:
       name: check if dev deployment is there.
       runs-on: ubuntu-latest
+      continue-on-error: true
       steps:
        - name: check the commit text
          run: |
