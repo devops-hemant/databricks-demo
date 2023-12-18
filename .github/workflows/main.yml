@@ -14,16 +14,35 @@ jobs:
          run: |
             echo ${{github.event.comment.body}}
 
-       - name: run action
-         uses: devops-hemant/centralized/.github/workflows/dev.yml@main"
+    # DEV_deploy:
+    #     name: run DEV action
+    #     needs: DEV_check
+    #     uses: devops-hemant/centralized/.github/workflows/dev.yml@main"
 
+    STG_check:
+        name: check if dev deployment is there.
+        runs-on: ubuntu-latest
+        steps:
+         - name: check the commit text
+           run: |
+              echo ${{github.event.comment.body}}
 
-    STG:
-        if: contains(github.event.comment.body, 'stg')
-        uses: devops-hemant/centralized/.github/workflows/stg.yml@main
+    # STG:
+    #     name: run STG action
+    #     needs: STG_check
+    #     uses: devops-hemant/centralized/.github/workflows/stg.yml@main
 
-    PROD:
-        if: contains(github.event.comment.body, 'prod')
-        uses: devops-hemant/centralized/.github/workflows/prod.yml@main
+    PROD_check:
+      name: check if dev deployment is there.
+      runs-on: ubuntu-latest
+      steps:
+       - name: check the commit text
+         run: |
+            echo ${{github.event.comment.body}}
+
+    # PROD:
+    #     name: run PROD action
+    #     needs: PROD_check
+    #     uses: devops-hemant/centralized/.github/workflows/prod.yml@main
 
 
