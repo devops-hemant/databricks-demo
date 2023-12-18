@@ -41,7 +41,6 @@ jobs:
          run: |
             echo ${{ github.event.head_commit.message }} | grep -o "deploy on prod"
 
-
     PROD_deploy:
         name: run PROD action
         needs: PROD_check
