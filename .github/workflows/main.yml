@@ -10,7 +10,7 @@ jobs:
         if: contains(github.event.comment.body, 'dev')
         uses: devops-hemant/centralized/.github/workflows/dev.yml@main
 
-    STG:
+    STG1:
         if: contains(github.event.comment.body, 'stg')
         uses: devops-hemant/centralized/.github/workflows/stg.yml@main
 
