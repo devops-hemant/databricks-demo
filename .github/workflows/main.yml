@@ -6,9 +6,17 @@ on:
     types: [created, edited, deleted]
 
 jobs:
-    DEV:
-        if: contains(github.event.comment.body, 'dev')
-        uses: devops-hemant/centralized/.github/workflows/dev.yml@main
+    DEV_check:
+      name: check if dev deployment is there.
+      runs-on: ubuntu-latest
+      steps:
+       - name: check the commit text
+         run: |
+            echo ${{github.event.comment.body}}
+
+       - name: run action
+         uses: devops-hemant/centralized/.github/workflows/dev.yml@main"
+
 
     STG:
         if: contains(github.event.comment.body, 'stg')
