@@ -5,15 +5,15 @@ on:
 
 jobs:
     DEV:
-        if: contains(github.event.comment.body, '/dev')
+        if: contains(github.event.comment.body, 'dev')
         uses: devops-hemant/centralized/.github/workflows/dev.yml@main
 
     STG:
-        if: contains(github.event.comment.body, '/stg')
+        if: contains(github.event.comment.body, 'stg')
         uses: devops-hemant/centralized/.github/workflows/stg.yml@main
 
     PROD:
-        if: contains(github.event.comment.body, '/prod')
+        if: contains(github.event.comment.body, 'prod')
         uses: devops-hemant/centralized/.github/workflows/prod.yml@main
 
 
