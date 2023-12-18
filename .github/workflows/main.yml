@@ -2,6 +2,8 @@ name: Deploy to multi env Databricks
 on:
   push:
   workflow_dispatch:
+  issue_comment:                                     
+    types: [created, edited, deleted]
 
 jobs:
     DEV:
