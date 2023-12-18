@@ -6,14 +6,14 @@ on:
     types: [created, edited, deleted]
 
 jobs:
-    DEV_check:
-      name: check if dev deployment is there.
-      runs-on: ubuntu-latest
-      continue-on-error: true
-      steps:
-       - name: check the commit text
-         run: |
-            echo ${{ github.event.head_commit.message }} | grep -o "deploy on dev"
+    # DEV_check:
+    #   name: check if dev deployment is there.
+    #   runs-on: ubuntu-latest
+    #   continue-on-error: true
+    #   steps:
+    #    - name: check the commit text
+    #      run: |
+    #         echo ${{ github.event.head_commit.message }} | grep -o "deploy on dev"
 
 
     DEV_deploy:
