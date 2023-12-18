@@ -2,12 +2,13 @@ name: Deploy to multi env Databricks
 on:
   push:
   workflow_dispatch:
-  issue_comment:                                     
+  issue_comment:
     types: [created, edited, deleted]
 
 jobs:
     DEV:
         if: contains(github.event.comment.body, 'dev')
+        
         uses: devops-hemant/centralized/.github/workflows/dev.yml@main
 
     STG:
