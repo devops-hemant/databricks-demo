@@ -14,7 +14,7 @@ jobs:
          run: |
             echo ${{ github.event.head_commit.message }} | grep "dev"
 
-            
+
     DEV_deploy:
         name: run DEV action
         needs: DEV_check
@@ -28,7 +28,7 @@ jobs:
            run: |
               echo ${{ github.event.head_commit.message }} | grep stg
 
-    STG:
+    STG_deploy:
         name: run STG action
         needs: STG_check
         uses: devops-hemant/centralized/.github/workflows/stg.yml@main
@@ -41,7 +41,7 @@ jobs:
          run: |
             echo ${{ github.event.head_commit.message }} | grep prod
 
-    PROD:
+    PROD_deploy:
         name: run PROD action
         needs: PROD_check
         uses: devops-hemant/centralized/.github/workflows/prod.yml@main
