@@ -1,6 +1,7 @@
 name: Deploy to Databricks
 on:
   push:
+  workflow_dispatch:
 
 jobs:
     DEV:
