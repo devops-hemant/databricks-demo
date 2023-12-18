@@ -12,7 +12,7 @@ jobs:
       steps:
        - name: check the commit text
          run: |
-            git log -1 --pretty=%B
+            echo ${{ github.event.head_commit.message }}
 
     # DEV_deploy:
     #     name: run DEV action
@@ -25,7 +25,7 @@ jobs:
         steps:
          - name: check the commit text
            run: |
-              git log -1 --pretty=%B
+              echo ${{ github.event.head_commit.message }}
 
     # STG:
     #     name: run STG action
@@ -38,7 +38,7 @@ jobs:
       steps:
        - name: check the commit text
          run: |
-            git log -1 --pretty=%B
+            echo ${{ github.event.head_commit.message }}
 
     # PROD:
     #     name: run PROD action
