@@ -8,7 +8,6 @@ on:
 jobs:
     DEV:
         if: contains(github.event.comment.body, 'dev')
-        
         uses: devops-hemant/centralized/.github/workflows/dev.yml@main
 
     STG:
