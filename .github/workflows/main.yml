@@ -16,7 +16,7 @@ jobs:
         uses: devops-hemant/centralized/.github/workflows/stg.yml@main
 
     PROD_deployment:
-        name: Deploy on PRODuction
+        name: Deploy on PROD
         if: contains(github.event.head_commit.message, 'deploy on prod')
         uses: devops-hemant/centralized/.github/workflows/prod.yml@main
 
