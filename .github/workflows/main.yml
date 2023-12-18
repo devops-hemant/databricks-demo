@@ -10,6 +10,7 @@ jobs:
         if: contains(github.event.head_commit.message, 'deploy on dev')
         uses: devops-hemant/centralized/.github/workflows/dev.yml@main
 
+
     STG_deployment:
         name: Deploy on STG
         if: contains(github.event.head_commit.message, 'deploy on stg')
