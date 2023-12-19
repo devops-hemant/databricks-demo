@@ -1,0 +1,23 @@
+name: Deploy to multi env Databricks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+    DEV_deployment:
+        name: Deploy on DEV
+        if: contains(github.event.head_commit.message, 'deploy on dev')
+        uses: devops-hemant/centralized/.github/workflows/dev.yml@main
+
+    STG_deployment:
+        name: Deploy on STG
+        if: contains(github.event.head_commit.message, 'deploy on stg')
+        uses: devops-hemant/centralized/.github/workflows/stg.yml@main
+
+    PROD_deployment:
+        name: Deploy on PROD
+        if: contains(github.event.head_commit.message, 'deploy on prod')
+        uses: devops-hemant/centralized/.github/workflows/prod.yml@main
+
+
