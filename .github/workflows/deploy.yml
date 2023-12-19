@@ -1,0 +1,65 @@
+
+name: Deploy to Databricks
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        description: 'Select the Environment'
+        required: true
+
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: notify the username to channel
+        run: |
+          curl -X POST -H 'Content-Type: application/json' --data '{"text": "${{ github.actor }} is running the pipeline"}' ${{ secrets.TEAMS_WEBHOOK }}
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # comment added
+
+
+      - name: Generate and save AAD Token
+        run: |
+          echo "DATABRICKS_TOKEN=$(curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' \
+            https://login.microsoftonline.com/${{ secrets.AZURE_SP_TENANT_ID }}/oauth2/v2.0/token \
+            -d 'client_id=${{ secrets.AZURE_SP_APPLICATION_ID }}' \
+            -d 'grant_type=client_credentials' \
+            -d 'scope=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d%2F.default' \
+            -d 'client_secret=${{ secrets.AZURE_SP_CLIENT_SECRET }}' |  jq -r  '.access_token')" >> $GITHUB_ENV
+
+
+      - name: Set up Python
+        uses: actions/setup-python@v4.7.1
+        with:
+          python-version: '3.11.5' # Change to your Python version if needed
+
+      - name: Install Databricks CLI
+        run: pip install databricks-cli
+
+      - name: Deploy to Databricks
+        id: deploy
+        run: |
+          echo $DATABRICKS_TOKEN
+          touch tfile
+          echo $DATABRICKS_TOKEN > tfile
+          databricks configure --host=https://adb-1473173809925020.0.azuredatabricks.net --token-file tfile
+
+          NOTEBOOK_PATH=notebooks/
+          REMOTE_PATH=/hemant/notebooks/
+
+          # Create or update the notebook
+          databricks workspace import_dir -o "$NOTEBOOK_PATH" "$REMOTE_PATH"
+
+          rm -rf tfile
+
+      - name: notify the username to channel
+        if: always()
+        run: |
+            curl -X POST -H 'Content-Type: application/json' --data '{"text": "${{ job.status }} is the status of the pipeline"}' ${{ secrets.TEAMS_WEBHOOK }}
