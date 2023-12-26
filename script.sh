@@ -1,4 +1,4 @@
-
+#!/bin/bash
 cd notebooks/
 rm -rf ${1}*
 
