@@ -3,7 +3,7 @@ name: Auto_Code_Deploy
 on:
     push: 
         branches: 
-            - Dev
+            - dev
         paths:
             - 'notebooks/test/**.py'
             - 'notebooks/test/**.scala'
@@ -18,7 +18,7 @@ on:
         types:
             - closed
         branches:
-            - Dev
+            - dev
         paths:
             - 'notebooks/test/**.py'
             - 'notebooks/test/**.scala'
