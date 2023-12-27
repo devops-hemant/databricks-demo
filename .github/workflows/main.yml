@@ -1,26 +1,54 @@
-name: Deploy to multi env Databricks
+name: Auto_Code_Deploy
+
 on:
-  push:
-  pull_request:
-  workflow_dispatch:
+    push: 
+        branches: 
+            - Dev
+        paths:
+            - 'notebooks/test/**.py'
+            - 'notebooks/test/**.scala'
+            - 'notebooks/test/**.html'
+            - 'notebooks/test/**.sql'
+            - 'notebooks/test/**.r'
+            - 'notebooks/test/**.dbc'
+            - 'notebooks/test/**.ipynb'
+            - 'notebooks/test/**.Rmd'
+            
+    pull_request:
+        types:
+            - closed
+        branches:
+            - Dev
+        paths:
+            - 'notebooks/test/**.py'
+            - 'notebooks/test/**.scala'
+            - 'notebooks/test/**.html'
+            - 'notebooks/test/**.sql'
+            - 'notebooks/test/**.r'
+            - 'notebooks/test/**.dbc'
+            - 'notebooks/test/**.ipynb'
+            - 'notebooks/test/**.Rmd'
 
 jobs:
-    DEV_deployment:
+
+  DEV_deployment:
         name: Deploy on DEV
         if: contains(github.event.head_commit.message, '#DeployOnDev')
         uses: devops-hemant/centralized/.github/workflows/dev.yml@main
         with:
             environment: dev
         secrets: inherit
-
-    STG_deployment:
+  STG_deployment:
         name: Deploy on STG
         if: contains(github.event.head_commit.message, '#DeployOnStg')
-        uses: devops-hemant/centralized/.github/workflows/stg.yml@main
-
-    PROD_deployment:
-        name: Deploy on PROD
-        if: contains(github.event.head_commit.message, '#DeployOnProd')
-        uses: devops-hemant/centralized/.github/workflows/prod.yml@main
-
-
+        uses: devops-hemant/centralized/.github/workflows/dev.yml@main
+        with:
+            environment: stg
+        secrets: inherit
+#   PROD_deployment:
+#         name: Deploy on PROD
+#         ##if: contains(github.event.head_commit.message, '#DeployOnProd')
+#         uses: uhc-tech-medicare-retiree-common/MDP-Centralized-CICD/.github/workflows/code_deploy_auto.yml@main
+#         with:
+#             environment: global-prod
+#         secrets: inherit
