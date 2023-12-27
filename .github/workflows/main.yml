@@ -9,6 +9,9 @@ jobs:
         name: Deploy on DEV
         if: contains(github.event.head_commit.message, '#DeployOnDev')
         uses: devops-hemant/centralized/.github/workflows/dev.yml@main
+        with:
+            environment: dev
+        secrets: inherit
 
     STG_deployment:
         name: Deploy on STG
