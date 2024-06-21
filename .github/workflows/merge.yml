@@ -10,7 +10,7 @@ on:
       
 
 jobs:
-  black:
+  merging:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,6 +21,7 @@ jobs:
       - name: Git push
         #if: github.event_name != 'pull_request'
         run: |
+          set -x
           git config user.name github-actions
           git config user.email github-actions@github.com
           git merge ${{ github.head_ref }}
