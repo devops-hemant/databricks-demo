@@ -37,3 +37,4 @@ jobs:
           git checkout ${{ steps.extract_branch.outputs.branch }}
           git checkout ${{ inputs.environment }}
           git merge ${{ steps.extract_branch.outputs.branch }}
+          git push
