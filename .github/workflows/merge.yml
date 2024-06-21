@@ -12,11 +12,18 @@ on:
 jobs:
   merging:
     runs-on: ubuntu-latest
+    outputs:
+      current_branch: ${{ steps.extract_branch.outputs.branch }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.environment }}
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
 
       - name: Git push
         #if: github.event_name != 'pull_request'
@@ -24,4 +31,4 @@ jobs:
           set -x
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git merge ${{ github.head_ref }}
+          git merge ${{ steps.extract_branch.outputs.branch }}
