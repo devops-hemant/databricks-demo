@@ -1,0 +1,26 @@
+name: branches merge
+
+on: 
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        description: 'Select the Environment'
+        required: true
+      
+
+jobs:
+  black:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.environment }}
+
+      - name: Git push
+        #if: github.event_name != 'pull_request'
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git merge ${{ github.head_ref }}
