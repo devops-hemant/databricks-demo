@@ -32,4 +32,6 @@ jobs:
           git branch
           git config user.name github-actions
           git config user.email github-actions@github.com
+          git checkout ${{ steps.extract_branch.outputs.branch }}
+          git checkout ${{ inputs.environment }}
           git merge ${{ steps.extract_branch.outputs.branch }}
