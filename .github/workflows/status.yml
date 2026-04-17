@@ -1,0 +1,83 @@
+name: Deploy with State Tracking
+
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  FEATURE_NUMBER: "FEAT-${{ github.run_number }}"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # 🟡 Step 1 — Mark IN-PROGRESS
+      - name: Set state = in-progress
+        run: |
+          echo '{
+            "feature": "${{ env.FEATURE_NUMBER }}",
+            "status": "in-progress",
+            "commit": "${{ github.sha }}",
+            "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+          }' > state.json
+
+          az storage blob upload \
+            --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
+            --container-name state \
+            --name deployment-state.json \
+            --file state.json \
+            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --overwrite
+
+      # 🚀 Step 2 — Deploy website
+      - name: Upload website
+        run: |
+          az storage blob upload-batch \
+            --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
+            --destination '$web' \
+            --source ./ \
+            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --overwrite
+
+      # ✅ Step 3 — Mark SUCCESS
+      - name: Set state = success
+        if: success()
+        run: |
+          echo '{
+            "feature": "${{ env.FEATURE_NUMBER }}",
+            "status": "success",
+            "commit": "${{ github.sha }}",
+            "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+          }' > state.json
+
+          az storage blob upload \
+            --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
+            --container-name state \
+            --name deployment-state.json \
+            --file state.json \
+            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --overwrite
+
+      # ❌ Step 4 — Mark FAILED
+      - name: Set state = failed
+        if: failure()
+        run: |
+          echo '{
+            "feature": "${{ env.FEATURE_NUMBER }}",
+            "status": "failed",
+            "commit": "${{ github.sha }}",
+            "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+          }' > state.json
+
+          az storage blob upload \
+            --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
+            --container-name state \
+            --name deployment-state.json \
+            --file state.json \
+            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --overwrite

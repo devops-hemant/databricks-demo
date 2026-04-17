@@ -1,0 +1,25 @@
+name: Deploy Static Site
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - 'report/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Upload to Azure Blob
+        run: |
+          az storage blob upload-batch \
+            --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
+            --destination '$web' \
+            --source ./ \
+            --sas-token "${{ secrets.AZSAS }}" \
+            --overwrite
