@@ -33,6 +33,12 @@
 
     .success-bg { background: #e6ffed; }
     .failed-bg { background: #ffe6e6; }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -40,7 +46,6 @@
 <h2>📊 Deployment Dashboard</h2>
 
 <div class="controls">
-  <!-- 🔽 Dynamic dropdown -->
   <select id="releaseSelect"></select>
 
   <input type="text" id="search" placeholder="Search...">
@@ -71,7 +76,7 @@
   let rawData = [];
   let viewData = [];
 
-  // 🔥 Load releases dynamically
+  // 🔽 Load releases dynamically
   async function loadReleases() {
     try {
       const res = await fetch("./releases.json");
@@ -87,7 +92,6 @@
         select.appendChild(option);
       }
 
-      // Auto-load first release
       if (releases.length > 0) {
         select.value = releases[0];
         loadData();
@@ -98,10 +102,11 @@
     }
   }
 
+  // 📂 Load data from selected release
   async function loadData() {
     try {
       const release = document.getElementById("releaseSelect").value;
-      const basePath = `./${release}/state/`;
+      const basePath = `./${release}/`;
 
       const res = await fetch(basePath + "index.json");
       const files = await res.json();
@@ -145,6 +150,7 @@
     }
   }
 
+  // 🔘 Toggle logic
   function applyMode() {
     const latestOnly = document.getElementById("toggleMode").checked;
 
@@ -177,6 +183,7 @@
     applySearch();
   }
 
+  // 🔍 Search
   function applySearch() {
     const value = document.getElementById("search").value.toLowerCase();
 
@@ -190,6 +197,7 @@
     renderTable(filtered);
   }
 
+  // 📊 Render table
   function renderTable(data) {
     let rows = "";
 
@@ -204,7 +212,9 @@
           <td>${item.feature}</td>
           <td>${item.team}</td>
           <td>${item.filename}</td>
-          <td class="${statusClass}">${item.status}</td>
+          <td class="${statusClass}">
+            <span class="badge">${item.status}</span>
+          </td>
         </tr>
       `;
     }
@@ -218,9 +228,8 @@
   document.getElementById("toggleMode").addEventListener("change", applyMode);
   document.getElementById("search").addEventListener("input", applySearch);
 
-  // 🚀 Start
+  // 🚀 Init
   loadReleases();
-
   setInterval(loadData, 30000);
 </script>
 
