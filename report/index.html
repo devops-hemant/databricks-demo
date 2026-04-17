@@ -3,30 +3,76 @@
 <head>
   <title>Deployment Dashboard</title>
   <style>
-    body { font-family: Arial; padding: 20px; background: #f5f5f5; }
-    table { border-collapse: collapse; width: 100%; background: white; }
-    th, td { border: 1px solid #ddd; padding: 10px; }
-    th { background: #222; color: white; }
-    .passed { color: green; font-weight: bold; }
-    .failed { color: red; font-weight: bold; }
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f4f6f8;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #222;
+      color: white;
+    }
+
+    .SUCCESS {
+      color: green;
+      font-weight: bold;
+    }
+
+    .FAILED {
+      color: red;
+      font-weight: bold;
+    }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+
+    .success-bg {
+      background: #e6ffed;
+    }
+
+    .failed-bg {
+      background: #ffe6e6;
+    }
+
   </style>
 </head>
 <body>
 
-<h2>📊 Deployment Status Table</h2>
+<h2>📊 Deployment File Status</h2>
 
 <table>
   <thead>
     <tr>
+      <th>Run ID</th>
       <th>Repo</th>
       <th>Feature</th>
       <th>Team</th>
-      <th>File Name</th>
+      <th>File</th>
       <th>Status</th>
     </tr>
   </thead>
   <tbody id="table-body">
-    <tr><td colspan="5">Loading...</td></tr>
+    <tr><td colspan="6">Loading...</td></tr>
   </tbody>
 </table>
 
@@ -35,14 +81,14 @@
 
   async function loadData() {
     try {
-      // Step 1: get list of run files
       const res = await fetch(basePath + "index.json");
       const files = await res.json();
 
       let rows = "";
 
-      // Step 2: read each txt file
       for (const file of files) {
+        const runId = file.replace(".txt", "");
+
         const r = await fetch(basePath + file);
         const text = await r.text();
 
@@ -51,39 +97,43 @@
         for (const line of lines) {
           if (!line.trim()) continue;
 
-          // Expected format:
-          // repo feature team filename status
-          const parts = line.split(" ");
+          const parts = line.trim().split(" ");
 
           if (parts.length < 5) continue;
 
           const [repo, feature, team, filename, status] = parts;
 
+          const statusClass = status === "SUCCESS" ? "SUCCESS" : "FAILED";
+          const bgClass = status === "SUCCESS" ? "success-bg" : "failed-bg";
+
           rows += `
-            <tr>
+            <tr class="${bgClass}">
+              <td>${runId}</td>
               <td>${repo}</td>
               <td>${feature}</td>
               <td>${team}</td>
               <td>${filename}</td>
-              <td class="${status.toLowerCase()}">${status.toUpperCase()}</td>
+              <td class="${statusClass}">
+                <span class="badge">${status}</span>
+              </td>
             </tr>
           `;
         }
       }
 
       document.getElementById("table-body").innerHTML =
-        rows || "<tr><td colspan='5'>No data</td></tr>";
+        rows || "<tr><td colspan='6'>No data</td></tr>";
 
     } catch (err) {
       console.error(err);
       document.getElementById("table-body").innerHTML =
-        "<tr><td colspan='5'>Error loading data</td></tr>";
+        "<tr><td colspan='6'>Error loading data</td></tr>";
     }
   }
 
   loadData();
 
-  // 🔁 Auto refresh
+  // 🔁 Auto refresh every 30 sec
   setInterval(loadData, 30000);
 </script>
 

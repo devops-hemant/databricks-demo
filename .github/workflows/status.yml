@@ -8,6 +8,8 @@ on:
 
 env:
   FEATURE_NUMBER: "FEAT-${{ github.run_number }}"
+  RUN_NUMBER: ${{ github.run_number }}
+  TEAM: "teamHS"
 
 jobs:
   deploy:
@@ -16,24 +18,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-
-      # 🟡 Step 1 — Mark IN-PROGRESS
-      - name: Set state = in-progress
-        run: |
-          echo '{
-            "feature": "${{ env.FEATURE_NUMBER }}",
-            "status": "in-progress",
-            "commit": "${{ github.sha }}",
-            "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
-          }' >> state.json
-
-          az storage blob upload \
-            --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
-            --container-name '$web' \
-            --name state/deployment-state.json \
-            --file state.json \
-            --sas-token "${{ secrets.AZSAS }}" \
-            --overwrite
 
       # 🚀 Step 2 — Deploy website
       - name: Upload website
@@ -47,38 +31,15 @@ jobs:
 
       # ✅ Step 3 — Mark SUCCESS
       - name: Set state = success
-        if: success()
         run: |
-          echo '{
-            "feature": "${{ env.FEATURE_NUMBER }}",
-            "status": "success",
-            "commit": "${{ github.sha }}",
-            "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
-          }' >> state.json
+          echo "${{ github.repository }} ${{ env.FEATURE_NUMBER }} ${{ env.TEAM }} file1 SUCCESS" >> $RUN_NUMBER.txt
+          echo "${{ github.repository }} ${{ env.FEATURE_NUMBER }} ${{ env.TEAM }} file2 FAILED" >> $RUN_NUMBER.txt
+          echo "${{ github.repository }} ${{ env.FEATURE_NUMBER }} ${{ env.TEAM }} file3 SUCCESS" >> $RUN_NUMBER.txt
 
           az storage blob upload \
             --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
             --container-name '$web' \
-            --name state/deployment-state.json \
-            --file state.json \
-            --sas-token "${{ secrets.AZSAS }}" \
-            --overwrite
-
-      # ❌ Step 4 — Mark FAILED
-      - name: Set state = failed
-        if: failure()
-        run: |
-          echo '{
-            "feature": "${{ env.FEATURE_NUMBER }}",
-            "status": "failed",
-            "commit": "${{ github.sha }}",
-            "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
-          }' >> state.json
-
-          az storage blob upload \
-            --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
-            --container-name '$web' \
-            --name state/deployment-state.json \
-            --file state.json \
+            --name state/$RUN_NUMBER.txt \
+            --file $RUN_NUMBER.txt \
             --sas-token "${{ secrets.AZSAS }}" \
             --overwrite
