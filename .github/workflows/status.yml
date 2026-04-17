@@ -25,7 +25,7 @@ jobs:
             "status": "in-progress",
             "commit": "${{ github.sha }}",
             "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
-          }' > state.json
+          }' >> state.json
 
           az storage blob upload \
             --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
@@ -54,7 +54,7 @@ jobs:
             "status": "success",
             "commit": "${{ github.sha }}",
             "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
-          }' > state.json
+          }' >> state.json
 
           az storage blob upload \
             --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
@@ -73,7 +73,7 @@ jobs:
             "status": "failed",
             "commit": "${{ github.sha }}",
             "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
-          }' > state.json
+          }' >> state.json
 
           az storage blob upload \
             --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
