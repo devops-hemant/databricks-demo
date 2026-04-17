@@ -19,6 +19,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          ref: ${{ github.ref}}
 
       # 🚀 Step 2 — Deploy website
       - name: Upload website
@@ -40,7 +43,7 @@ jobs:
           az storage blob upload \
             --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
             --container-name '$web' \
-            --name $RELEASE_NUMBER/state/$FEATURE_NUMBER.txt \
+            --name $RELEASE_NUMBER/$FEATURE_NUMBER.txt \
             --file $FEATURE_NUMBER.txt \
             --sas-token "${{ secrets.AZSAS }}" \
             --overwrite
@@ -50,10 +53,10 @@ jobs:
           az storage blob list \
             --account-name "${{ vars.AZURE_STORAGE_ACCOUNT }}" \
             --container-name '$web' \
-            --prefix $RELEASE_NUMBER/state/ \
+            --prefix $RELEASE_NUMBER/ \
             --sas-token "${{ secrets.AZSAS }}" \
             --query "[?ends_with(name, '.txt')].name" \
-            -o json | jq 'map(sub("^$RELEASE_NUMBER/state/"; "").sub(".txt"; ""))' > index.json
+            -o json | jq 'map(sub("^$RELEASE_NUMBER/"; ""))' > index.json
           
       - name: Upload index.json
         run: |
