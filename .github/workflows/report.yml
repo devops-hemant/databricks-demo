@@ -1,26 +1,26 @@
-name: Deploy Static Site
+# name: Deploy Static Site
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - dev
-    paths:
-      - 'report/**'
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches:
+#       - dev
+#     paths:
+#       - 'report/**'
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v6
 
-      - name: Upload to Azure Blob
-        run: |
-          az storage blob upload-batch \
-            --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
-            --destination '$web' \
-            --source ./report \
-            --sas-token "${{ secrets.AZSAS }}" \
-            --overwrite
+#       - name: Upload to Azure Blob
+#         run: |
+#           az storage blob upload-batch \
+#             --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
+#             --destination '$web' \
+#             --source ./report \
+#             --sas-token "${{ secrets.AZSAS }}" \
+#             --overwrite
