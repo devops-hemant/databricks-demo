@@ -40,12 +40,6 @@
       font-weight: bold;
     }
 
-    .badge {
-      padding: 3px 8px;
-      border-radius: 5px;
-      font-size: 12px;
-    }
-
     .success-bg {
       background: #e6ffed;
     }
@@ -54,11 +48,26 @@
       background: #ffe6e6;
     }
 
+    .badge {
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    #search {
+      margin-bottom: 15px;
+      padding: 8px;
+      width: 300px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
 <body>
 
 <h2>📊 Deployment File Status</h2>
+
+<input type="text" id="search" placeholder="Search repo / feature / file...">
 
 <table>
   <thead>
@@ -78,13 +87,17 @@
 
 <script>
   const basePath = "./state/";
+  let allData = [];
 
   async function loadData() {
     try {
       const res = await fetch(basePath + "index.json");
       const files = await res.json();
 
-      let rows = "";
+      // Ensure latest files processed last
+      files.sort();
+
+      const map = new Map();
 
       for (const file of files) {
         const runId = file.replace(".txt", "");
@@ -98,31 +111,26 @@
           if (!line.trim()) continue;
 
           const parts = line.trim().split(" ");
-
           if (parts.length < 5) continue;
 
           const [repo, feature, team, filename, status] = parts;
 
-          const statusClass = status === "SUCCESS" ? "SUCCESS" : "FAILED";
-          const bgClass = status === "SUCCESS" ? "success-bg" : "failed-bg";
+          const key = `${repo}|${feature}|${team}|${filename}`;
 
-          rows += `
-            <tr class="${bgClass}">
-              <td>${runId}</td>
-              <td>${repo}</td>
-              <td>${feature}</td>
-              <td>${team}</td>
-              <td>${filename}</td>
-              <td class="${statusClass}">
-                <span class="badge">${status}</span>
-              </td>
-            </tr>
-          `;
+          // overwrite → latest wins
+          map.set(key, {
+            runId,
+            repo,
+            feature,
+            team,
+            filename,
+            status
+          });
         }
       }
 
-      document.getElementById("table-body").innerHTML =
-        rows || "<tr><td colspan='6'>No data</td></tr>";
+      allData = Array.from(map.values());
+      renderTable(allData);
 
     } catch (err) {
       console.error(err);
@@ -131,9 +139,48 @@
     }
   }
 
+  function renderTable(data) {
+    let rows = "";
+
+    for (const item of data) {
+      const statusClass = item.status === "SUCCESS" ? "SUCCESS" : "FAILED";
+      const bgClass = item.status === "SUCCESS" ? "success-bg" : "failed-bg";
+
+      rows += `
+        <tr class="${bgClass}">
+          <td>${item.runId}</td>
+          <td>${item.repo}</td>
+          <td>${item.feature}</td>
+          <td>${item.team}</td>
+          <td>${item.filename}</td>
+          <td class="${statusClass}">
+            <span class="badge">${item.status}</span>
+          </td>
+        </tr>
+      `;
+    }
+
+    document.getElementById("table-body").innerHTML =
+      rows || "<tr><td colspan='6'>No data</td></tr>";
+  }
+
+  // 🔍 Search filter
+  document.getElementById("search").addEventListener("input", function () {
+    const value = this.value.toLowerCase();
+
+    const filtered = allData.filter(item =>
+      item.repo.toLowerCase().includes(value) ||
+      item.feature.toLowerCase().includes(value) ||
+      item.filename.toLowerCase().includes(value) ||
+      item.team.toLowerCase().includes(value)
+    );
+
+    renderTable(filtered);
+  });
+
   loadData();
 
-  // 🔁 Auto refresh every 30 sec
+  // 🔁 Auto refresh
   setInterval(loadData, 30000);
 </script>
 
