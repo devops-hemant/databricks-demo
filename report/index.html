@@ -5,10 +5,11 @@
   <style>
     body { font-family: Arial; padding: 20px; background: #f4f6f8; }
 
-    h2 { margin-bottom: 10px; }
+    .controls { margin-bottom: 15px; }
 
-    .controls {
-      margin-bottom: 15px;
+    select, input {
+      padding: 8px;
+      margin-right: 10px;
     }
 
     table {
@@ -32,22 +33,6 @@
 
     .success-bg { background: #e6ffed; }
     .failed-bg { background: #ffe6e6; }
-
-    .badge {
-      padding: 3px 8px;
-      border-radius: 5px;
-      font-size: 12px;
-    }
-
-    #search {
-      padding: 8px;
-      width: 250px;
-      margin-right: 15px;
-    }
-
-    .toggle {
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
@@ -55,9 +40,12 @@
 <h2>📊 Deployment Dashboard</h2>
 
 <div class="controls">
+  <!-- 🔽 Dynamic dropdown -->
+  <select id="releaseSelect"></select>
+
   <input type="text" id="search" placeholder="Search...">
 
-  <label class="toggle">
+  <label>
     <input type="checkbox" id="toggleMode">
     Show Latest Only
   </label>
@@ -80,12 +68,41 @@
 </table>
 
 <script>
-  const basePath = "./state/";
   let rawData = [];
   let viewData = [];
 
+  // 🔥 Load releases dynamically
+  async function loadReleases() {
+    try {
+      const res = await fetch("./releases.json");
+      const releases = await res.json();
+
+      const select = document.getElementById("releaseSelect");
+      select.innerHTML = "";
+
+      for (const rel of releases) {
+        const option = document.createElement("option");
+        option.value = rel;
+        option.textContent = rel;
+        select.appendChild(option);
+      }
+
+      // Auto-load first release
+      if (releases.length > 0) {
+        select.value = releases[0];
+        loadData();
+      }
+
+    } catch (err) {
+      console.error("Error loading releases:", err);
+    }
+  }
+
   async function loadData() {
     try {
+      const release = document.getElementById("releaseSelect").value;
+      const basePath = `./${release}/state/`;
+
       const res = await fetch(basePath + "index.json");
       const files = await res.json();
 
@@ -132,18 +149,16 @@
     const latestOnly = document.getElementById("toggleMode").checked;
 
     if (latestOnly) {
-      // 🔥 Latest only (overwrite using Map)
       const map = new Map();
 
       for (const item of rawData) {
         const key = `${item.repo}|${item.feature}|${item.filename}`;
-        map.set(key, item); // latest wins
+        map.set(key, item);
       }
 
       viewData = Array.from(map.values());
 
     } else {
-      // 🔥 All history (dedupe exact duplicates only)
       const seen = new Set();
       const result = [];
 
@@ -189,9 +204,7 @@
           <td>${item.feature}</td>
           <td>${item.team}</td>
           <td>${item.filename}</td>
-          <td class="${statusClass}">
-            <span class="badge">${item.status}</span>
-          </td>
+          <td class="${statusClass}">${item.status}</td>
         </tr>
       `;
     }
@@ -201,11 +214,14 @@
   }
 
   // 🔁 Events
+  document.getElementById("releaseSelect").addEventListener("change", loadData);
   document.getElementById("toggleMode").addEventListener("change", applyMode);
   document.getElementById("search").addEventListener("input", applySearch);
 
-  loadData();
-  setInterval(loadData, 30);
+  // 🚀 Start
+  loadReleases();
+
+  setInterval(loadData, 30000);
 </script>
 
 </body>
