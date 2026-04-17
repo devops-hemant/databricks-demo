@@ -31,7 +31,7 @@ jobs:
             --container-name state \
             --name deployment-state.json \
             --file state.json \
-            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --sas-token "${{ secrets.AZSAS }}" \
             --overwrite
 
       # 🚀 Step 2 — Deploy website
@@ -41,7 +41,7 @@ jobs:
             --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
             --destination '$web' \
             --source ./ \
-            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --sas-token "${{ secrets.AZSAS }}" \
             --overwrite
 
       # ✅ Step 3 — Mark SUCCESS
@@ -60,7 +60,7 @@ jobs:
             --container-name state \
             --name deployment-state.json \
             --file state.json \
-            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --sas-token "${{ secrets.AZSAS }}" \
             --overwrite
 
       # ❌ Step 4 — Mark FAILED
@@ -79,5 +79,5 @@ jobs:
             --container-name state \
             --name deployment-state.json \
             --file state.json \
-            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --sas-token "${{ secrets.AZSAS }}" \
             --overwrite
