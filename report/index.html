@@ -3,14 +3,12 @@
 <head>
   <title>Deployment Dashboard</title>
   <style>
-    body {
-      font-family: Arial;
-      padding: 20px;
-      background: #f4f6f8;
-    }
+    body { font-family: Arial; padding: 20px; background: #f4f6f8; }
 
-    h2 {
-      margin-bottom: 20px;
+    h2 { margin-bottom: 10px; }
+
+    .controls {
+      margin-bottom: 15px;
     }
 
     table {
@@ -22,7 +20,6 @@
     th, td {
       border: 1px solid #ddd;
       padding: 10px;
-      text-align: left;
     }
 
     th {
@@ -30,44 +27,41 @@
       color: white;
     }
 
-    .SUCCESS {
-      color: green;
-      font-weight: bold;
-    }
+    .SUCCESS { color: green; font-weight: bold; }
+    .FAILED { color: red; font-weight: bold; }
 
-    .FAILED {
-      color: red;
-      font-weight: bold;
-    }
-
-    .success-bg {
-      background: #e6ffed;
-    }
-
-    .failed-bg {
-      background: #ffe6e6;
-    }
+    .success-bg { background: #e6ffed; }
+    .failed-bg { background: #ffe6e6; }
 
     .badge {
       padding: 3px 8px;
       border-radius: 5px;
       font-size: 12px;
-      display: inline-block;
     }
 
     #search {
-      margin-bottom: 15px;
       padding: 8px;
-      width: 300px;
-      border: 1px solid #ccc;
+      width: 250px;
+      margin-right: 15px;
+    }
+
+    .toggle {
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<h2>📊 Deployment File Status</h2>
+<h2>📊 Deployment Dashboard</h2>
 
-<input type="text" id="search" placeholder="Search repo / feature / file...">
+<div class="controls">
+  <input type="text" id="search" placeholder="Search...">
+
+  <label class="toggle">
+    <input type="checkbox" id="toggleMode">
+    Show Latest Only
+  </label>
+</div>
 
 <table>
   <thead>
@@ -87,15 +81,15 @@
 
 <script>
   const basePath = "./state/";
-  let allData = [];
+  let rawData = [];
+  let viewData = [];
 
   async function loadData() {
     try {
       const res = await fetch(basePath + "index.json");
       const files = await res.json();
 
-      const seen = new Set();   // for deduplication
-      const result = [];
+      const allRows = [];
 
       for (const file of files) {
         const runId = file.replace(".txt", "");
@@ -113,14 +107,7 @@
 
           const [repo, feature, team, filename, status] = parts;
 
-          // 🔑 Deduplication key
-          const key = `${repo}|${feature}|${filename}|${status}`;
-
-          if (seen.has(key)) continue;  // skip duplicate
-
-          seen.add(key);
-
-          result.push({
+          allRows.push({
             runId,
             repo,
             feature,
@@ -131,14 +118,61 @@
         }
       }
 
-      allData = result;
-      renderTable(allData);
+      rawData = allRows;
+      applyMode();
 
     } catch (err) {
       console.error(err);
       document.getElementById("table-body").innerHTML =
         "<tr><td colspan='6'>Error loading data</td></tr>";
     }
+  }
+
+  function applyMode() {
+    const latestOnly = document.getElementById("toggleMode").checked;
+
+    if (latestOnly) {
+      // 🔥 Latest only (overwrite using Map)
+      const map = new Map();
+
+      for (const item of rawData) {
+        const key = `${item.repo}|${item.feature}|${item.filename}`;
+        map.set(key, item); // latest wins
+      }
+
+      viewData = Array.from(map.values());
+
+    } else {
+      // 🔥 All history (dedupe exact duplicates only)
+      const seen = new Set();
+      const result = [];
+
+      for (const item of rawData) {
+        const key = `${item.repo}|${item.feature}|${item.filename}|${item.status}`;
+
+        if (seen.has(key)) continue;
+
+        seen.add(key);
+        result.push(item);
+      }
+
+      viewData = result;
+    }
+
+    applySearch();
+  }
+
+  function applySearch() {
+    const value = document.getElementById("search").value.toLowerCase();
+
+    const filtered = viewData.filter(item =>
+      item.repo.toLowerCase().includes(value) ||
+      item.feature.toLowerCase().includes(value) ||
+      item.filename.toLowerCase().includes(value) ||
+      item.team.toLowerCase().includes(value)
+    );
+
+    renderTable(filtered);
   }
 
   function renderTable(data) {
@@ -166,19 +200,9 @@
       rows || "<tr><td colspan='6'>No data</td></tr>";
   }
 
-  // 🔍 Search
-  document.getElementById("search").addEventListener("input", function () {
-    const value = this.value.toLowerCase();
-
-    const filtered = allData.filter(item =>
-      item.repo.toLowerCase().includes(value) ||
-      item.feature.toLowerCase().includes(value) ||
-      item.filename.toLowerCase().includes(value) ||
-      item.team.toLowerCase().includes(value)
-    );
-
-    renderTable(filtered);
-  });
+  // 🔁 Events
+  document.getElementById("toggleMode").addEventListener("change", applyMode);
+  document.getElementById("search").addEventListener("input", applySearch);
 
   loadData();
   setInterval(loadData, 30);
