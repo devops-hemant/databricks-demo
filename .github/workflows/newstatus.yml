@@ -57,7 +57,7 @@ jobs:
                 --account-name "$ACCOUNT" \
                 --source "$CONTAINER" \
                 --destination "." \
-                --pattern "$RELEASE/*" \
+                # --pattern "$RELEASE/*" \
                 --sas-token "$SAS_TOKEN"
 
                 ls -la
