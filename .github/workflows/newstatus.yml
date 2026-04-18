@@ -86,12 +86,14 @@ jobs:
             echo "Downloading $RELEASE ..."
 
             # Download release folder using SAS
+            set -x
             az storage blob download-batch \
               --account-name "$ACCOUNT" \
               --source "$CONTAINER" \
               --destination "./tmp" \
               --pattern "$RELEASE/*" \
               --sas-token "$SAS_TOKEN"
+            set +x
 
             # Create CSV header
             echo "Release,Repo,ID,Filename,Status" > "$OUTPUT"
