@@ -45,6 +45,38 @@ jobs:
 
               echo "Downloading $RELEASE ..."
 
+              az storage blob download \
+                --account-name "$ACCOUNT" \
+                --container-name "$CONTAINER" \
+                --name "releases.json" \
+                --file "releases.json" \
+                --sas-token "$SAS_TOKEN"
+
+              jq --arg newRelease "$RELEASE" \
+              '.releases |= ([ $newRelease ] + . | unique)' \
+              releases.json > tmp.json && mv tmp.json releases.json
+
+              az storage blob upload \
+                --account-name "$ACCOUNT" \
+                --container-name "$CONTAINER" \
+                --name "releases.json" \
+                --file "releases.json" \
+                --sas-token "$SAS_TOKEN" \
+                --overwrite
+
+
+      - name: Update Deployment Report
+        run: |
+
+              # ===== CONFIG =====
+              ACCOUNT="${{ vars.AZURE_STORAGE_ACCOUNT }}"
+              CONTAINER="\$web"   # or your container
+              SAS_TOKEN="${{ secrets.AZSAS }}"   # ?sv=... (keep the ?)
+              RELEASE="Release-CHG001"
+              OUTPUT="output.csv"
+
+              echo "Downloading $RELEASE ..."
+
               echo "======================================"
               echo "Processing Release: $RELEASE"
               echo "======================================"
@@ -59,8 +91,6 @@ jobs:
                 --destination "." \
                 --pattern "$RELEASE/*" \
                 --sas-token "$SAS_TOKEN"
-
-                ls -la
 
               # =========================
               # Create CSV
@@ -102,9 +132,3 @@ jobs:
               echo "======================================"
               echo "Done ✅ CSV uploaded to $RELEASE/data.csv"
               echo "======================================"
-                    
-      # - name: update the release.json
-      #   run: |
-      #       jq --arg newRelease "$RELEASE" \
-      #         '.releases |= ([ $newRelease ] + . | unique)' \
-      #         releases.json > tmp.json && mv tmp.json releases.json
