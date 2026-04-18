@@ -43,11 +43,6 @@ jobs:
             RELEASE="Release-CHG001"
             OUTPUT="output.csv"
 
-            if [ -z "$RELEASE" ]; then
-              echo "Usage: ./generate_csv.sh Release-CHG001"
-              exit 1
-            fi
-
             echo "Downloading $RELEASE ..."
 
             # Download release folder using SAS
@@ -61,7 +56,7 @@ jobs:
             set +x
 
             # Create CSV header
-            echo "Release,Repo,ID,Filename,Status" > "$OUTPUT"
+            echo "Release,Repository,Team,ID,Filename,Status" > "$OUTPUT"
 
             echo "Processing files..."
 
@@ -71,14 +66,14 @@ jobs:
               path=${file#./}
 
               # Split path
-              IFS='/' read -r rel repo id status filename <<< "$path"
+              IFS='/' read -r rel repository id status filename <<< "$path"
 
               # Skip if structure not matching
               if [ -z "$filename" ]; then
                 continue
               fi
 
-              echo "$rel,$repo,$id,$filename,$status" >> "$OUTPUT"
+              echo "$rel,$repository,$team,$id,$filename,$status" >> "$OUTPUT"
             done
 
             echo "CSV generated: $OUTPUT"
