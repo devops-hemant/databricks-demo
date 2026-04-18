@@ -52,7 +52,7 @@ jobs:
                 --file "releases.json" \
                 --sas-token "$SAS_TOKEN"
 
-              #  if [ -f releases.json ] || echo '{"releases":[]}' > releases.json
+               if [ -f releases.json ] || echo '{"releases":[]}' > releases.json
 
                 jq --arg newRelease "$RELEASE" \
                 '.releases |= ([ $newRelease ] + map(select(. != $newRelease)))' \
