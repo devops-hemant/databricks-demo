@@ -36,53 +36,68 @@ jobs:
       - name: Update Releases
         run: |
 
-            # ===== CONFIG =====
-            ACCOUNT="${{ vars.AZURE_STORAGE_ACCOUNT }}"
-            CONTAINER="\$web"   # or your container
-            SAS_TOKEN="${{ secrets.AZSAS }}"   # ?sv=... (keep the ?)
-            RELEASE="Release-CHG001"
-            OUTPUT="output.csv"
+              # ===== CONFIG =====
+              ACCOUNT="${{ vars.AZURE_STORAGE_ACCOUNT }}"
+              CONTAINER="\$web"   # or your container
+              SAS_TOKEN="${{ secrets.AZSAS }}"   # ?sv=... (keep the ?)
+              RELEASE="Release-CHG001"
+              OUTPUT="output.csv"
 
-            echo "Downloading $RELEASE ..."
+              echo "Downloading $RELEASE ..."
 
-            # Download release folder using SAS
-            set -x
-            az storage blob download-batch \
-              --account-name "$ACCOUNT" \
-              --source "$CONTAINER" \
-              --destination "." \
-              --pattern "$RELEASE/*" \
-              --sas-token "$SAS_TOKEN"
-            set +x
+              echo "======================================"
+              echo "Processing Release: $RELEASE"
+              echo "======================================"
 
-            # Create CSV header
-            echo "Release,Repository,Team,ID,Filename,Status" > "$OUTPUT"
+              # =========================
+              # Download release folder
+              # =========================
+              echo "Downloading blobs..."
+              az storage blob download-batch \
+                --account-name "$ACCOUNT" \
+                --source "$CONTAINER" \
+                --destination "." \
+                --pattern "$RELEASE/*" \
+                --sas-token "$SAS_TOKEN"
 
-            echo "Processing files..."
+              # =========================
+              # Create CSV
+              # =========================
+              echo "Generating CSV..."
+              echo "Release,Repo,Team,ID,Filename,Status" > "$OUTPUT"
 
-            # Traverse files
-            find "./$RELEASE" -type f | while read file; do
-              # Remove prefix
-              path=${file#./}
+              find "./$RELEASE" -type f | while read -r file; do
+                # Example path:
+                # ./Release-CHG001/repo/team/id/passed/file.txt
 
-              # Split path
-              IFS='/' read -r rel repository id status filename <<< "$path"
+                path=${file#./}
 
-              # Skip if structure not matching
-              if [ -z "$filename" ]; then
-                continue
-              fi
+                IFS='/' read -r rel repo team id status filename <<< "$path"
 
-              echo "$rel,$repository,$team,$id,$filename,$status" >> "$OUTPUT"
-            done
+                # Skip invalid paths
+                if [ -z "$filename" ]; then
+                  continue
+                fi
 
-            echo "CSV generated: $OUTPUT"
+                echo "$rel,$repo,$team,$id,$filename,$status" >> "$OUTPUT"
+              done
 
-            az storage blob upload \
-              --account-name "$ACCOUNT" \
-              --container-name '$web' \
-              --name "$RELEASE/data.csv" \
-              --file "$OUTPUT" \
-              --sas-token "$SAS_TOKEN" \
-              --overwrite
-      
+              echo "CSV created: $OUTPUT"
+
+              # =========================
+              # Upload CSV back to blob
+              # =========================
+              echo "Uploading CSV to blob..."
+
+              az storage blob upload \
+                --account-name "$ACCOUNT" \
+                --container-name "$CONTAINER" \
+                --name "$RELEASE/data.csv" \
+                --file "$OUTPUT" \
+                --sas-token "$SAS_TOKEN" \
+                --overwrite
+
+              echo "======================================"
+              echo "Done ✅ CSV uploaded to $RELEASE/data.csv"
+              echo "======================================"
+                    
