@@ -55,7 +55,7 @@ jobs:
             az storage blob download-batch \
               --account-name "$ACCOUNT" \
               --source "$CONTAINER" \
-              --destination "./tmp" \
+              --destination "." \
               --pattern "$RELEASE/*" \
               --sas-token "$SAS_TOKEN"
             set +x
@@ -66,9 +66,9 @@ jobs:
             echo "Processing files..."
 
             # Traverse files
-            find "./tmp/$RELEASE" -type f | while read file; do
+            find "./$RELEASE" -type f | while read file; do
               # Remove prefix
-              path=${file#./tmp/}
+              path=${file#./}
 
               # Split path
               IFS='/' read -r rel repo id status filename <<< "$path"
@@ -84,7 +84,7 @@ jobs:
             echo "CSV generated: $OUTPUT"
 
             # Cleanup
-            rm -rf ./tmp
+            rm -rf .
 
             az storage blob upload \
               --account-name "$ACCOUNT" \
