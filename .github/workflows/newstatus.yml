@@ -2,9 +2,9 @@ name: Deploy with State Tracking
 
 on:
   workflow_dispatch:
-#   push:
-#     branches:
-#       - dev
+  push:
+    branches:
+      - dev
 
 env:
   FEATURE_NUMBER: "FEAT-${{ github.run_number }}"
@@ -70,37 +70,60 @@ jobs:
 
       - name: Update releases.json
         run: |
-            for i in {1..5}; do
-            echo "Attempt $i"
 
-            # Download existing releases.json (or create empty)
-            az storage blob download \
-                --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
-                --container-name '$web' \
-                --name releases.json \
-                --file releases.json \
-                --sas-token "${{ secrets.AZSAS }}" \
-                || echo "[]" > releases.json
+            # ===== CONFIG =====
+            ACCOUNT="${{ vars.AZURE_STORAGE_ACCOUNT }}"
+            CONTAINER="$web"   # or your container
+            SAS_TOKEN="${{ secrets.AZSAS }}"   # ?sv=... (keep the ?)
+            RELEASE="Release-CHG001"
+            OUTPUT="output.csv"
 
-            # Add release if not already present
-            jq --arg rel "$RELEASE_NUMBER" '
-                if index($rel) then . else . + [$rel] end
-            ' releases.json > new_releases.json
+            if [ -z "$RELEASE" ]; then
+              echo "Usage: ./generate_csv.sh Release-CHG001"
+              exit 1
+            fi
 
-            # Optional: sort releases
-            jq 'sort' new_releases.json > final_releases.json
+            echo "Downloading $RELEASE ..."
 
-            # Upload back
-            az storage blob upload \
-                --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
-                --container-name '$web' \
-                --name releases.json \
-                --file final_releases.json \
-                --sas-token "${{ secrets.AZSAS }}" \
-                --overwrite && break
+            # Download release folder using SAS
+            az storage blob download-batch \
+              --account-name "$ACCOUNT" \
+              --source "$CONTAINER" \
+              --destination "./tmp" \
+              --pattern "$RELEASE/*" \
+              --sas-token "$SAS_TOKEN"
 
-            echo "Retrying due to conflict..."
-            sleep 2
+            # Create CSV header
+            echo "Release,Repo,ID,Filename,Status" > "$OUTPUT"
+
+            echo "Processing files..."
+
+            # Traverse files
+            find "./tmp/$RELEASE" -type f | while read file; do
+              # Remove prefix
+              path=${file#./tmp/}
+
+              # Split path
+              IFS='/' read -r rel repo id status filename <<< "$path"
+
+              # Skip if structure not matching
+              if [ -z "$filename" ]; then
+                continue
+              fi
+
+              echo "$rel,$repo,$id,$filename,$status" >> "$OUTPUT"
             done
 
+            echo "CSV generated: $OUTPUT"
+
+            # Cleanup
+            rm -rf ./tmp
+
+            az storage blob upload \
+              --account-name "$ACCOUNT" \
+              --container-name '$web' \
+              --name "$RELEASE/data.csv" \
+              --file "$OUTPUT" \
+              --sas-token "$SAS_TOKEN" \
+              --overwrite
       

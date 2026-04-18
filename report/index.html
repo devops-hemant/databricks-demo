@@ -1,236 +1,104 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Deployment Dashboard</title>
-  <style>
-    body { font-family: Arial; padding: 20px; background: #f4f6f8; }
-
-    .controls { margin-bottom: 15px; }
-
-    select, input {
-      padding: 8px;
-      margin-right: 10px;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      background: white;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-    }
-
-    th {
-      background: #222;
-      color: white;
-    }
-
-    .SUCCESS { color: green; font-weight: bold; }
-    .FAILED { color: red; font-weight: bold; }
-
-    .success-bg { background: #e6ffed; }
-    .failed-bg { background: #ffe6e6; }
-
-    .badge {
-      padding: 3px 8px;
-      border-radius: 5px;
-      font-size: 12px;
-    }
-  </style>
+    <title>Release Dashboard</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        select, button { margin: 10px 0; padding: 6px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background: #f4f4f4; }
+    </style>
 </head>
 <body>
 
-<h2>📊 Deployment Dashboard</h2>
+<h2>Release Dashboard</h2>
 
-<div class="controls">
-  <select id="releaseSelect"></select>
+<label>Select Release:</label>
+<select id="releaseDropdown"></select>
 
-  <input type="text" id="search" placeholder="Search...">
-
-  <label>
-    <input type="checkbox" id="toggleMode">
-    Show Latest Only
-  </label>
-</div>
+<br>
+<button onclick="downloadCSV()">Download CSV</button>
 
 <table>
-  <thead>
-    <tr>
-      <th>Run ID</th>
-      <th>Repo</th>
-      <th>Feature</th>
-      <th>Team</th>
-      <th>File</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody id="table-body">
-    <tr><td colspan="6">Loading...</td></tr>
-  </tbody>
+    <thead>
+        <tr>
+            <th>Release</th>
+            <th>Repo</th>
+            <th>ID</th>
+            <th>Filename</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
 </table>
 
 <script>
-  let rawData = [];
-  let viewData = [];
+let currentCSV = "";
 
-  // 🔽 Load releases dynamically
-  async function loadReleases() {
-    try {
-      const res = await fetch("./releases.json");
-      const releases = await res.json();
+// Load releases
+async function loadReleases() {
+    const res = await fetch("releases.json");
+    const data = await res.json();
 
-      const select = document.getElementById("releaseSelect");
-      select.innerHTML = "";
+    const dropdown = document.getElementById("releaseDropdown");
 
-      for (const rel of releases) {
-        const option = document.createElement("option");
-        option.value = rel;
-        option.textContent = rel;
-        select.appendChild(option);
-      }
+    data.releases.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = r;
+        opt.textContent = r;
+        dropdown.appendChild(opt);
+    });
 
-      if (releases.length > 0) {
-        select.value = releases[0];
-        loadData();
-      }
+    dropdown.addEventListener("change", loadCSV);
 
-    } catch (err) {
-      console.error("Error loading releases:", err);
+    if (data.releases.length > 0) {
+        dropdown.value = data.releases[0];
+        loadCSV();
     }
-  }
+}
 
-  // 📂 Load data from selected release
-  async function loadData() {
-    try {
-      const release = document.getElementById("releaseSelect").value;
-      const basePath = `./${release}/`;
+// Load CSV
+async function loadCSV() {
+    const release = document.getElementById("releaseDropdown").value;
 
-      const res = await fetch(basePath + "index.json");
-      const files = await res.json();
+    const res = await fetch(`${release}/data.csv`);
+    currentCSV = await res.text();
 
-      const allRows = [];
+    const rows = currentCSV.split("\n").slice(1); // skip header
 
-      for (const file of files) {
-        const runId = file.replace(".txt", "");
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
 
-        const r = await fetch(basePath + file);
-        const text = await r.text();
+    rows.forEach(row => {
+        if (!row.trim()) return;
 
-        const lines = text.split("\n");
+        const [rel, repo, id, filename, status] = row.split(",");
 
-        for (const line of lines) {
-          if (!line.trim()) continue;
+        const tr = `<tr>
+            <td>${rel}</td>
+            <td>${repo}</td>
+            <td>${id}</td>
+            <td>${filename}</td>
+            <td>${status}</td>
+        </tr>`;
 
-          const parts = line.trim().split(" ");
-          if (parts.length < 5) continue;
+        tbody.innerHTML += tr;
+    });
+}
 
-          const [repo, feature, team, filename, status] = parts;
+// Download CSV
+function downloadCSV() {
+    const blob = new Blob([currentCSV], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
 
-          allRows.push({
-            runId,
-            repo,
-            feature,
-            team,
-            filename,
-            status
-          });
-        }
-      }
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "data.csv";
+    a.click();
+}
 
-      rawData = allRows;
-      applyMode();
-
-    } catch (err) {
-      console.error(err);
-      document.getElementById("table-body").innerHTML =
-        "<tr><td colspan='6'>Error loading data</td></tr>";
-    }
-  }
-
-  // 🔘 Toggle logic
-  function applyMode() {
-    const latestOnly = document.getElementById("toggleMode").checked;
-
-    if (latestOnly) {
-      const map = new Map();
-
-      for (const item of rawData) {
-        const key = `${item.repo}|${item.feature}|${item.filename}`;
-        map.set(key, item);
-      }
-
-      viewData = Array.from(map.values());
-
-    } else {
-      const seen = new Set();
-      const result = [];
-
-      for (const item of rawData) {
-        const key = `${item.repo}|${item.feature}|${item.filename}|${item.status}`;
-
-        if (seen.has(key)) continue;
-
-        seen.add(key);
-        result.push(item);
-      }
-
-      viewData = result;
-    }
-
-    applySearch();
-  }
-
-  // 🔍 Search
-  function applySearch() {
-    const value = document.getElementById("search").value.toLowerCase();
-
-    const filtered = viewData.filter(item =>
-      item.repo.toLowerCase().includes(value) ||
-      item.feature.toLowerCase().includes(value) ||
-      item.filename.toLowerCase().includes(value) ||
-      item.team.toLowerCase().includes(value)
-    );
-
-    renderTable(filtered);
-  }
-
-  // 📊 Render table
-  function renderTable(data) {
-    let rows = "";
-
-    for (const item of data) {
-      const statusClass = item.status === "SUCCESS" ? "SUCCESS" : "FAILED";
-      const bgClass = item.status === "SUCCESS" ? "success-bg" : "failed-bg";
-
-      rows += `
-        <tr class="${bgClass}">
-          <td>${item.runId}</td>
-          <td>${item.repo}</td>
-          <td>${item.feature}</td>
-          <td>${item.team}</td>
-          <td>${item.filename}</td>
-          <td class="${statusClass}">
-            <span class="badge">${item.status}</span>
-          </td>
-        </tr>
-      `;
-    }
-
-    document.getElementById("table-body").innerHTML =
-      rows || "<tr><td colspan='6'>No data</td></tr>";
-  }
-
-  // 🔁 Events
-  document.getElementById("releaseSelect").addEventListener("change", loadData);
-  document.getElementById("toggleMode").addEventListener("change", applyMode);
-  document.getElementById("search").addEventListener("input", applySearch);
-
-  // 🚀 Init
-  loadReleases();
-  setInterval(loadData, 30);
+loadReleases();
 </script>
 
 </body>
