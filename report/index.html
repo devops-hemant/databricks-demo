@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Platform DevOps Release Dashboard</title>
+    <title>Release Dashboard</title>
 
     <style>
         body {
@@ -61,13 +61,13 @@
 </head>
 <body>
 
-<h2>Platform DevOps - Release Dashboard</h2>
+<h2>📊 Release Dashboard</h2>
 
 <label><b>Select Release:</b></label>
 <select id="releaseDropdown"></select>
 
 <br>
-<button onclick="downloadCSV()">Download CSV</button>
+<button onclick="downloadCSV()">⬇ Download CSV</button>
 <span id="lastRefresh"></span>
 
 <table>
@@ -75,6 +75,7 @@
         <tr>
             <th>Release</th>
             <th>Repo</th>
+            <th>Team</th>
             <th>ID</th>
             <th>Filename</th>
             <th>Status</th>
@@ -123,13 +124,14 @@ async function loadCSV() {
     rows.forEach(row => {
         if (!row.trim()) return;
 
-        const [rel, repo, id, filename, status] = row.split(",");
+        const [rel, repo, team, id, filename, status] = row.split(",");
 
         let statusClass = status === "passed" ? "passed" : "failed";
 
         const tr = `<tr>
             <td>${rel}</td>
             <td>${repo}</td>
+            <td>${team}</td>
             <td>${id}</td>
             <td>${filename}</td>
             <td class="${statusClass}">${status}</td>
