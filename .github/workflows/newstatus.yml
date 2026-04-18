@@ -83,9 +83,6 @@ jobs:
 
             echo "CSV generated: $OUTPUT"
 
-            # Cleanup
-            rm -rf .
-
             az storage blob upload \
               --account-name "$ACCOUNT" \
               --container-name '$web' \
