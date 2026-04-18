@@ -33,47 +33,12 @@ jobs:
             --sas-token "${{ secrets.AZSAS }}" \
             --overwrite
 
-      # ✅ Step 3 — Mark SUCCESS
-      - name: Set state = success
-        run: |
-          echo "${{ github.repository }} ${{ env.FEATURE_NUMBER }} ${{ env.TEAM }} file1 SUCCESS" >> $FEATURE_NUMBER.txt
-          echo "${{ github.repository }} ${{ env.FEATURE_NUMBER }} ${{ env.TEAM }} file2 FAILED" >> $FEATURE_NUMBER.txt
-          echo "${{ github.repository }} ${{ env.FEATURE_NUMBER }} ${{ env.TEAM }} file3 SUCCESS" >> $FEATURE_NUMBER.txt
-
-          az storage blob upload \
-            --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
-            --container-name '$web' \
-            --name $RELEASE_NUMBER/$FEATURE_NUMBER.txt \
-            --file $FEATURE_NUMBER.txt \
-            --sas-token "${{ secrets.AZSAS }}" \
-            --overwrite
-
-      - name: Update the index.json
-        run: |
-          az storage blob list \
-            --account-name "${{ vars.AZURE_STORAGE_ACCOUNT }}" \
-            --container-name '$web' \
-            --prefix $RELEASE_NUMBER/ \
-            --sas-token "${{ secrets.AZSAS }}" \
-            --query "[?ends_with(name, '.txt')].name" \
-            -o json | jq 'map(sub("^$RELEASE_NUMBER/"; ""))' > index.json
-          
-      - name: Upload index.json
-        run: |
-          az storage blob upload \
-            --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
-            --container-name '$web' \
-            --name $RELEASE_NUMBER/index.json \
-            --file index.json \
-            --sas-token "${{ secrets.AZSAS }}" \
-            --overwrite
-
-      - name: Update releases.json
+      - name: Update Releases
         run: |
 
             # ===== CONFIG =====
             ACCOUNT="${{ vars.AZURE_STORAGE_ACCOUNT }}"
-            CONTAINER="$web"   # or your container
+            CONTAINER="\$web"   # or your container
             SAS_TOKEN="${{ secrets.AZSAS }}"   # ?sv=... (keep the ?)
             RELEASE="Release-CHG001"
             OUTPUT="output.csv"
