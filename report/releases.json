@@ -1,5 +1,6 @@
-[
-  "release1",
-  "release2",
-  "release3"
-]
+{
+  "releases": [
+    "Release-CHG002",
+    "Release-CHG001"
+  ]
+}
