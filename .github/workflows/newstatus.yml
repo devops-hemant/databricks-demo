@@ -60,6 +60,8 @@ jobs:
                 --pattern "$RELEASE/*" \
                 --sas-token "$SAS_TOKEN"
 
+                ls -la
+
               # =========================
               # Create CSV
               # =========================
@@ -101,3 +103,8 @@ jobs:
               echo "Done ✅ CSV uploaded to $RELEASE/data.csv"
               echo "======================================"
                     
+      # - name: update the release.json
+      #   run: |
+      #       jq --arg newRelease "$RELEASE" \
+      #         '.releases |= ([ $newRelease ] + . | unique)' \
+      #         releases.json > tmp.json && mv tmp.json releases.json
