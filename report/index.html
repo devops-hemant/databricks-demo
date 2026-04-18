@@ -67,8 +67,7 @@
 <select id="releaseDropdown"></select>
 
 <br>
-<button onclick="downloadCSV()">⬇ Download CSV</button>
-<button onclick="loadCSV()">🔄 Refresh Now</button>
+<button onclick="downloadCSV()">Download CSV</button>
 <span id="lastRefresh"></span>
 
 <table>
@@ -150,7 +149,7 @@ function updateRefreshTime() {
         `Last refreshed: ${timeStr}`;
 }
 
-// Download CSV with release name
+// Download CSV
 function downloadCSV() {
     const release = document.getElementById("releaseDropdown").value;
 
@@ -163,7 +162,7 @@ function downloadCSV() {
     a.click();
 }
 
-// Auto refresh every 30 seconds (no reload)
+// Auto refresh every 30 seconds
 setInterval(() => {
     loadCSV();
 }, 30000);
